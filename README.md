@@ -1,5 +1,9 @@
 # 💽 HDDKeepAlive
 
+<p align="center">
+  <img src="assets/icons/dual_badge_1.jpg" width="160" alt="HDDKeepAlive Logo" />
+</p>
+
 **🌐 English** | [🇨🇳 简体中文](README_zh.md)
 
 A lightweight, silent Windows system tray utility designed to prevent external mechanical hard drives (HDDs) from automatically spinning down or entering sleep mode.

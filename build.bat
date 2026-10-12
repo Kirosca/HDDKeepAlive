@@ -18,7 +18,7 @@ if %CSC%=="" (
 echo [HDDKeepAlive] 使用编译器: %CSC%
 echo [HDDKeepAlive] 正在编译单文件可执行程序 HDDKeepAlive.exe...
 
-%CSC% /target:winexe /optimize+ /r:System.Drawing.dll,System.Windows.Forms.dll,System.Management.dll /out:HDDKeepAlive.exe Program.cs
+%CSC% /target:winexe /optimize+ /win32icon:app.ico /r:System.Drawing.dll,System.Windows.Forms.dll,System.Management.dll /out:HDDKeepAlive.exe Program.cs
 
 if %ERRORLEVEL% EQU 0 (
     echo [成功] 编译完成: HDDKeepAlive.exe

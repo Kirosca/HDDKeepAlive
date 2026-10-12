@@ -681,6 +681,16 @@ namespace HDDKeepAlive
 
         private Icon CreateHddIcon(bool isProtecting)
         {
+            try
+            {
+                Icon appIcon = Icon.ExtractAssociatedIcon(Application.ExecutablePath);
+                if (appIcon != null)
+                {
+                    return appIcon;
+                }
+            }
+            catch { }
+
             using (Bitmap bmp = new Bitmap(32, 32))
             using (Graphics g = Graphics.FromImage(bmp))
             {

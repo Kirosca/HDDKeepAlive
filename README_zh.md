@@ -1,5 +1,9 @@
 # 💽 HDDKeepAlive (外接机械硬盘防休眠助手)
 
+<p align="center">
+  <img src="assets/icons/dual_badge_1.jpg" width="160" alt="HDDKeepAlive Logo" />
+</p>
+
 [🌐 English](README.md) | **🇨🇳 简体中文**
 
 轻量级 Windows 外接机械硬盘防休眠静默托盘助手。零第三方依赖、单文件运行（~28 KB），自适应识别外接 USB 存储设备，监听系统硬件热插拔，消除机械硬盘休眠导致的访问卡顿与启停磨损。
