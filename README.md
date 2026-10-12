@@ -8,6 +8,21 @@ Zero external dependencies, single-file native executable (~28 KB), adaptive USB
 
 ---
 
+## Why HDDKeepAlive? (Comparison with Existing Tools)
+
+While tools like *KeepAliveHD*, *DiskNotSleep*, or manual Task Scheduler scripts exist, most were built over a decade ago and require tedious manual configuration. **HDDKeepAlive** was built from scratch to address their long-standing limitations:
+
+| Feature / Capability | Traditional Tools (e.g. KeepAliveHD, DiskNotSleep) | **HDDKeepAlive** |
+| :--- | :--- | :--- |
+| **Drive Discovery** | **Manual**: User must manually browse and bind drive letters or folders | **100% Automatic**: Win32 kernel IOCTL queries hardware `BusType == 7 (USB)` directly |
+| **PnP Hot-Plug Detection** | **None**: Changing USB ports or plugging new drives requires restarting/reconfiguring | **Real-Time**: Intercepts Windows `WM_DEVICECHANGE` broadcasts; adapts within 1.5s |
+| **Internal SSD Protection** | **None**: Inexperienced users may select internal NVMe/SATA SSDs, causing unnecessary write wear | **Hardware-Level Guard**: Automatically ignores internal NVMe, SATA SSDs, and system drive `C:\` |
+| **Cache Bypass Mechanism** | Standard `WriteAllText` (can be buffered by Windows Write Cache; risks "Delayed Write Failed") | Strict `FileStream.Flush(true)` bypasses OS cache directly to hardware controller |
+| **Packaging & Size** | Multi-file installer or heavy frameworks (~several MBs, configuration windows) | **28 KB single standalone executable**, zero runtime dependencies, silent in tray |
+| **UI & Localization** | Monolingual English | **Bilingual**: Instant live toggle between **English** and **简体中文** |
+
+---
+
 ## Background & Problem
 
 1. **Spin-down Latency**: External 3.5" and 2.5" mechanical hard drives (enclosures, docking stations, multi-bay DAS storage) frequently spin down their spindle motors after a few minutes of inactivity due to aggressive disk firmware or Windows APM (Advanced Power Management) policies. When accessing files again, users experience a 3-8 second freeze while the drive spins back up.
