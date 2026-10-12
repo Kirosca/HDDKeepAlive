@@ -12,10 +12,115 @@ using Microsoft.Win32.SafeHandles;
 
 namespace HDDKeepAlive
 {
+    public static class I18n
+    {
+        public static string CurrentLanguage = "zh"; // "zh" or "en"
+
+        public static string T(string key, params object[] args)
+        {
+            string val;
+            Dictionary<string, string> dict = (CurrentLanguage == "en") ? StringsEn : StringsZh;
+            if (!dict.TryGetValue(key, out val))
+            {
+                if (!StringsZh.TryGetValue(key, out val))
+                {
+                    val = key;
+                }
+            }
+            if (args != null && args.Length > 0)
+            {
+                try { return string.Format(val, args); } catch { return val; }
+            }
+            return val;
+        }
+
+        private static readonly Dictionary<string, string> StringsZh = new Dictionary<string, string>
+        {
+            { "AppTitle", "外接硬盘防休眠助手" },
+            { "AppRunningAlready", "外接硬盘防休眠助手已在后台运行中。\n您可以在任务栏右下角系统托盘找到它。" },
+            { "MenuTitle", "外接硬盘防休眠助手 v2.1" },
+            { "DetectingDisks", "正在检测外接存储..." },
+            { "ProtectingPrefix", "守护中: " },
+            { "StatusNone", "状态: 暂无受保护的外接盘" },
+            { "TrayTooltipStandby", "外接硬盘防休眠助手 (待命中)" },
+            { "TrayTooltipProtecting", "外接硬盘防休眠助手 ({0})" },
+            { "MenuDisks", "外接磁盘管理 (点击切换勾选)" },
+            { "MenuDisksNone", "未检测到外接 USB 驱动器" },
+            { "MenuKeepNow", "立即执行心跳保活" },
+            { "MenuInterval", "心跳频率设置" },
+            { "Interval30", "30 秒" },
+            { "Interval60", "60 秒 (推荐)" },
+            { "Interval120", "120 秒" },
+            { "Interval180", "180 秒" },
+            { "MenuAutoStart", "开机自动启动" },
+            { "MenuLanguage", "界面语言 / Language" },
+            { "LangZh", "简体中文 (Chinese)" },
+            { "LangEn", "English" },
+            { "MenuStats", "运行统计" },
+            { "MenuExit", "退出程序" },
+            { "OpenInExplorer", "在资源管理器中打开" },
+            { "LocalDiskDefault", "本地磁盘" },
+            { "UsbDeviceDefault", "USB 存储设备" },
+            { "BalloonReadyTitle", "外接硬盘防休眠助手已就绪" },
+            { "BalloonReadyContent", "已自适应识别 USB 存储设备：{0}\n盘片将保持平稳运行，彻底消除唤醒等待。" },
+            { "BalloonHeartbeatDoneTitle", "心跳完成" },
+            { "BalloonHeartbeatDoneContent", "已向所有受保护的外接磁盘刷新硬件缓存。" },
+            { "BalloonIntervalUpdatedTitle", "频率已更新" },
+            { "BalloonIntervalUpdatedContent", "已将心跳刷新间隔调整为 {0} 秒。" },
+            { "BalloonAutoStartTitle", "自启动设置" },
+            { "BalloonAutoStartEnabled", "已开启开机自动静默启动！" },
+            { "BalloonAutoStartDisabled", "已关闭开机自启。" },
+            { "AutoStartError", "设置自启动失败: " },
+            { "StatsTitle", "运行统计 - 外接硬盘防休眠助手" },
+            { "StatsContent", "运行时间: {0} 小时 {1} 分钟\n累计保护心跳: {2} 次\n当前受保护分区: {3}\n刷新频率: 每 {4} 秒一次\n\n提示: 程序正在静默维持外接硬盘转速，防止马达停转。" },
+            { "None", "无" }
+        };
+
+        private static readonly Dictionary<string, string> StringsEn = new Dictionary<string, string>
+        {
+            { "AppTitle", "External HDD Keep-Alive" },
+            { "AppRunningAlready", "External HDD Keep-Alive is already running in background.\nYou can find it in the system tray." },
+            { "MenuTitle", "HDD Keep-Alive v2.1" },
+            { "DetectingDisks", "Detecting external drives..." },
+            { "ProtectingPrefix", "Active: " },
+            { "StatusNone", "Status: No active external disks" },
+            { "TrayTooltipStandby", "HDD Keep-Alive (Standby)" },
+            { "TrayTooltipProtecting", "HDD Keep-Alive ({0})" },
+            { "MenuDisks", "External Disks (Click to toggle)" },
+            { "MenuDisksNone", "No external USB disks detected" },
+            { "MenuKeepNow", "Keep Alive Now" },
+            { "MenuInterval", "Keep-Alive Interval" },
+            { "Interval30", "30 Seconds" },
+            { "Interval60", "60 Seconds (Recommended)" },
+            { "Interval120", "120 Seconds" },
+            { "Interval180", "180 Seconds" },
+            { "MenuAutoStart", "Start with Windows" },
+            { "MenuLanguage", "Language / 语言" },
+            { "LangZh", "简体中文 (Chinese)" },
+            { "LangEn", "English" },
+            { "MenuStats", "Statistics" },
+            { "MenuExit", "Exit" },
+            { "OpenInExplorer", "Open in File Explorer" },
+            { "LocalDiskDefault", "Local Disk" },
+            { "UsbDeviceDefault", "USB Storage Device" },
+            { "BalloonReadyTitle", "HDD Keep-Alive Ready" },
+            { "BalloonReadyContent", "Detected USB storage devices: {0}\nDisks will stay awake to eliminate spin-up delay." },
+            { "BalloonHeartbeatDoneTitle", "Heartbeat Sent" },
+            { "BalloonHeartbeatDoneContent", "Flushed hardware cache for all active USB disks." },
+            { "BalloonIntervalUpdatedTitle", "Interval Updated" },
+            { "BalloonIntervalUpdatedContent", "Keep-alive interval updated to {0} seconds." },
+            { "BalloonAutoStartTitle", "Auto-Start Setting" },
+            { "BalloonAutoStartEnabled", "Enabled auto-start with Windows." },
+            { "BalloonAutoStartDisabled", "Disabled auto-start with Windows." },
+            { "AutoStartError", "Failed to configure auto-start: " },
+            { "StatsTitle", "Statistics - HDD Keep-Alive" },
+            { "StatsContent", "Uptime: {0} hr {1} min\nTotal heartbeats: {2}\nActive drives: {3}\nInterval: Every {4} seconds\n\nNote: Keeping disk platters spinning silently." },
+            { "None", "None" }
+        };
+    }
+
     static class Program
     {
-        private const string AppName = "HDDKeepAlive";
-        private const string AppTitle = "外接硬盘防休眠助手";
         private static Mutex mutex;
 
         [STAThread]
@@ -24,20 +129,62 @@ namespace HDDKeepAlive
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
 
+            // 预读取注册表语言偏好以决定单例提示的语言
+            InitLanguagePreference();
+
             bool createdNew;
             mutex = new Mutex(true, "Global\\HDDKeepAlive_Singleton_Mutex", out createdNew);
             if (!createdNew)
             {
-                MessageBox.Show("外接硬盘防休眠助手已在后台运行中。\n您可以在任务栏右下角系统托盘找到它。",
-                    AppTitle, MessageBoxButtons.OK, MessageBoxIcon.Information);
+                MessageBox.Show(I18n.T("AppRunningAlready"),
+                    I18n.T("AppTitle"), MessageBoxButtons.OK, MessageBoxIcon.Information);
                 return;
             }
 
-            AppDomain.CurrentDomain.UnhandledException += (s, e) => { };
-            Application.ThreadException += (s, e) => { };
-
-            Application.Run(new TrayApplicationContext());
+            try
+            {
+                Application.Run(new TrayApplicationContext());
+            }
+            catch (Exception ex)
+            {
+                try { File.WriteAllText(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "error.log"), ex.ToString()); } catch { }
+            }
             GC.KeepAlive(mutex);
+        }
+
+        private static void InitLanguagePreference()
+        {
+            try
+            {
+                using (RegistryKey key = Registry.CurrentUser.OpenSubKey(@"Software\HDDKeepAlive", false))
+                {
+                    if (key != null)
+                    {
+                        object langVal = key.GetValue("Language");
+                        if (langVal != null)
+                        {
+                            string l = langVal.ToString().ToLowerInvariant();
+                            if (l == "zh" || l == "en")
+                            {
+                                I18n.CurrentLanguage = l;
+                                return;
+                            }
+                        }
+                    }
+                }
+            }
+            catch { }
+
+            // 默认探测系统 UI 语言
+            try
+            {
+                string sys = System.Globalization.CultureInfo.CurrentUICulture.TwoLetterISOLanguageName;
+                I18n.CurrentLanguage = sys.Equals("zh", StringComparison.OrdinalIgnoreCase) ? "zh" : "en";
+            }
+            catch
+            {
+                I18n.CurrentLanguage = "zh";
+            }
         }
     }
 
@@ -56,7 +203,7 @@ namespace HDDKeepAlive
             get
             {
                 string letter = DriveLetter.TrimEnd('\\');
-                string label = string.IsNullOrEmpty(VolumeLabel) ? "本地磁盘" : VolumeLabel;
+                string label = string.IsNullOrEmpty(VolumeLabel) ? I18n.T("LocalDiskDefault") : VolumeLabel;
                 string freeGb = (TotalFreeSpaceBytes / (1024.0 * 1024 * 1024)).ToString("0.#");
                 string totalGb = (TotalSizeBytes / (1024.0 * 1024 * 1024)).ToString("0.#");
                 return string.Format("[{0}] {1} ({2} GB / {3} GB)", letter, label, freeGb, totalGb);
@@ -81,14 +228,22 @@ namespace HDDKeepAlive
         private Dictionary<string, DiskInfoItem> currentDisks = new Dictionary<string, DiskInfoItem>(StringComparer.OrdinalIgnoreCase);
         private HashSet<string> userDisabledDrives = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
-        // 菜单项
+        // 菜单项引用
+        private ToolStripMenuItem titleItem;
         private ToolStripMenuItem statusMenuItem;
         private ToolStripMenuItem disksMenu;
-        private ToolStripMenuItem autoStartMenuItem;
+        private ToolStripMenuItem keepNowItem;
+        private ToolStripMenuItem intervalMenu;
         private ToolStripMenuItem interval30Item;
         private ToolStripMenuItem interval60Item;
         private ToolStripMenuItem interval120Item;
         private ToolStripMenuItem interval180Item;
+        private ToolStripMenuItem autoStartMenuItem;
+        private ToolStripMenuItem languageMenu;
+        private ToolStripMenuItem langZhItem;
+        private ToolStripMenuItem langEnItem;
+        private ToolStripMenuItem statsItem;
+        private ToolStripMenuItem exitItem;
 
         public TrayApplicationContext()
         {
@@ -114,57 +269,67 @@ namespace HDDKeepAlive
         private void InitializeTray()
         {
             contextMenu = new ContextMenuStrip();
-            contextMenu.Font = new Font("Microsoft YaHei UI", 9F);
+            contextMenu.Font = new Font("Segoe UI", 9F);
 
             // 标题
-            ToolStripMenuItem titleItem = new ToolStripMenuItem("外接硬盘防休眠助手 v2.0");
-            titleItem.Font = new Font("Microsoft YaHei UI", 9F, FontStyle.Bold);
+            titleItem = new ToolStripMenuItem();
+            titleItem.Font = new Font("Segoe UI", 9F, FontStyle.Bold);
             titleItem.Enabled = false;
             contextMenu.Items.Add(titleItem);
             contextMenu.Items.Add(new ToolStripSeparator());
 
             // 状态
-            statusMenuItem = new ToolStripMenuItem("正在检测外接存储...");
+            statusMenuItem = new ToolStripMenuItem();
             statusMenuItem.Enabled = false;
             contextMenu.Items.Add(statusMenuItem);
 
             // 保护的磁盘列表子菜单
-            disksMenu = new ToolStripMenuItem("外接磁盘管理 (点击切换勾选)");
+            disksMenu = new ToolStripMenuItem();
             contextMenu.Items.Add(disksMenu);
 
             // 立即保活
-            ToolStripMenuItem keepNowItem = new ToolStripMenuItem("立即执行心跳保活", null, (s, e) =>
+            keepNowItem = new ToolStripMenuItem(string.Empty, null, (s, e) =>
             {
                 PerformHeartbeat();
-                notifyIcon.ShowBalloonTip(2000, "心跳完成", "已向所有受保护的外接磁盘刷新硬件缓存。", ToolTipIcon.Info);
+                notifyIcon.ShowBalloonTip(2000, I18n.T("BalloonHeartbeatDoneTitle"),
+                    I18n.T("BalloonHeartbeatDoneContent"), ToolTipIcon.Info);
             });
             contextMenu.Items.Add(keepNowItem);
 
             contextMenu.Items.Add(new ToolStripSeparator());
 
             // 频率设置
-            ToolStripMenuItem intervalMenu = new ToolStripMenuItem("心跳频率设置");
-            interval30Item = new ToolStripMenuItem("30 秒", null, (s, e) => SetInterval(30));
-            interval60Item = new ToolStripMenuItem("60 秒 (推荐)", null, (s, e) => SetInterval(60));
-            interval120Item = new ToolStripMenuItem("120 秒", null, (s, e) => SetInterval(120));
-            interval180Item = new ToolStripMenuItem("180 秒", null, (s, e) => SetInterval(180));
+            intervalMenu = new ToolStripMenuItem();
+            interval30Item = new ToolStripMenuItem(string.Empty, null, (s, e) => SetInterval(30));
+            interval60Item = new ToolStripMenuItem(string.Empty, null, (s, e) => SetInterval(60));
+            interval120Item = new ToolStripMenuItem(string.Empty, null, (s, e) => SetInterval(120));
+            interval180Item = new ToolStripMenuItem(string.Empty, null, (s, e) => SetInterval(180));
             intervalMenu.DropDownItems.AddRange(new ToolStripItem[] { interval30Item, interval60Item, interval120Item, interval180Item });
             UpdateIntervalMenuChecks();
             contextMenu.Items.Add(intervalMenu);
 
             // 开机自启
-            autoStartMenuItem = new ToolStripMenuItem("开机自动启动", null, (s, e) => ToggleAutoStart());
+            autoStartMenuItem = new ToolStripMenuItem(string.Empty, null, (s, e) => ToggleAutoStart());
             autoStartMenuItem.Checked = IsAutoStartEnabled();
             contextMenu.Items.Add(autoStartMenuItem);
 
+            // 语言选项
+            languageMenu = new ToolStripMenuItem();
+            langZhItem = new ToolStripMenuItem(string.Empty, null, (s, e) => SwitchLanguage("zh"));
+            langEnItem = new ToolStripMenuItem(string.Empty, null, (s, e) => SwitchLanguage("en"));
+            languageMenu.DropDownItems.Add(langZhItem);
+            languageMenu.DropDownItems.Add(langEnItem);
+            UpdateLanguageMenuChecks();
+            contextMenu.Items.Add(languageMenu);
+
             // 统计信息
-            ToolStripMenuItem statsItem = new ToolStripMenuItem("运行统计", null, (s, e) => ShowStatistics());
+            statsItem = new ToolStripMenuItem(string.Empty, null, (s, e) => ShowStatistics());
             contextMenu.Items.Add(statsItem);
 
             contextMenu.Items.Add(new ToolStripSeparator());
 
             // 退出
-            ToolStripMenuItem exitItem = new ToolStripMenuItem("退出程序", null, (s, e) =>
+            exitItem = new ToolStripMenuItem(string.Empty, null, (s, e) =>
             {
                 keepAliveTimer.Stop();
                 if (deviceReceiver != null) deviceReceiver.DestroyHandle();
@@ -180,6 +345,45 @@ namespace HDDKeepAlive
             notifyIcon.Icon = CreateHddIcon(true);
             notifyIcon.Visible = true;
             notifyIcon.DoubleClick += (s, e) => PerformHeartbeat();
+
+            // 初始化文本
+            UpdateMenuTexts();
+        }
+
+        private void UpdateMenuTexts()
+        {
+            titleItem.Text = I18n.T("MenuTitle");
+            disksMenu.Text = I18n.T("MenuDisks");
+            keepNowItem.Text = I18n.T("MenuKeepNow");
+            intervalMenu.Text = I18n.T("MenuInterval");
+            interval30Item.Text = I18n.T("Interval30");
+            interval60Item.Text = I18n.T("Interval60");
+            interval120Item.Text = I18n.T("Interval120");
+            interval180Item.Text = I18n.T("Interval180");
+            autoStartMenuItem.Text = I18n.T("MenuAutoStart");
+            languageMenu.Text = I18n.T("MenuLanguage");
+            langZhItem.Text = I18n.T("LangZh");
+            langEnItem.Text = I18n.T("LangEn");
+            statsItem.Text = I18n.T("MenuStats");
+            exitItem.Text = I18n.T("MenuExit");
+
+            UpdateDisksMenu();
+            UpdateStatusDisplay();
+        }
+
+        private void SwitchLanguage(string lang)
+        {
+            if (I18n.CurrentLanguage == lang) return;
+            I18n.CurrentLanguage = lang;
+            UpdateLanguageMenuChecks();
+            UpdateMenuTexts();
+            SaveSettings();
+        }
+
+        private void UpdateLanguageMenuChecks()
+        {
+            langZhItem.Checked = (I18n.CurrentLanguage == "zh");
+            langEnItem.Checked = (I18n.CurrentLanguage == "en");
         }
 
         public void OnDeviceChangeNotification()
@@ -207,9 +411,9 @@ namespace HDDKeepAlive
             if (isStartup && currentDisks.Count > 0)
             {
                 List<string> protectedList = GetActiveDrives();
-                string drives = protectedList.Count > 0 ? string.Join(", ", protectedList.ToArray()) : "无";
-                notifyIcon.ShowBalloonTip(3000, "外接硬盘防休眠助手已就绪",
-                    string.Format("已自适应识别 USB 存储设备：{0}\n盘片将保持平稳运行，彻底消除唤醒等待。", drives),
+                string drives = protectedList.Count > 0 ? string.Join(", ", protectedList.ToArray()) : I18n.T("None");
+                notifyIcon.ShowBalloonTip(3000, I18n.T("BalloonReadyTitle"),
+                    I18n.T("BalloonReadyContent", drives),
                     ToolTipIcon.Info);
             }
         }
@@ -233,7 +437,7 @@ namespace HDDKeepAlive
 
             if (currentDisks.Count == 0)
             {
-                ToolStripMenuItem emptyItem = new ToolStripMenuItem("未检测到外接 USB 驱动器");
+                ToolStripMenuItem emptyItem = new ToolStripMenuItem(I18n.T("MenuDisksNone"));
                 emptyItem.Enabled = false;
                 disksMenu.DropDownItems.Add(emptyItem);
                 return;
@@ -261,7 +465,7 @@ namespace HDDKeepAlive
                 };
 
                 // 添加子菜单：打开文件夹
-                ToolStripMenuItem openFolder = new ToolStripMenuItem("在资源管理器中打开", null, (s, e) =>
+                ToolStripMenuItem openFolder = new ToolStripMenuItem(I18n.T("OpenInExplorer"), null, (s, e) =>
                 {
                     try { System.Diagnostics.Process.Start(currentDisk.DriveLetter); } catch { }
                 });
@@ -273,20 +477,21 @@ namespace HDDKeepAlive
 
         private void UpdateStatusDisplay()
         {
+            if (notifyIcon == null) return;
             List<string> active = GetActiveDrives();
             if (active.Count > 0)
             {
                 string text = string.Join(", ", active.ToArray());
-                statusMenuItem.Text = "守护中: " + text;
-                string tooltip = "外接硬盘防休眠助手 (" + text + ")";
+                statusMenuItem.Text = I18n.T("ProtectingPrefix") + text;
+                string tooltip = I18n.T("TrayTooltipProtecting", text);
                 if (tooltip.Length > 63) tooltip = tooltip.Substring(0, 60) + "...";
                 notifyIcon.Text = tooltip;
                 notifyIcon.Icon = CreateHddIcon(true);
             }
             else
             {
-                statusMenuItem.Text = "状态: 暂无受保护的外接盘";
-                notifyIcon.Text = "外接硬盘防休眠助手 (待命中)";
+                statusMenuItem.Text = I18n.T("StatusNone");
+                notifyIcon.Text = I18n.T("TrayTooltipStandby");
                 notifyIcon.Icon = CreateHddIcon(false);
             }
         }
@@ -345,7 +550,8 @@ namespace HDDKeepAlive
             keepAliveTimer.Interval = intervalSeconds * 1000;
             UpdateIntervalMenuChecks();
             SaveSettings();
-            notifyIcon.ShowBalloonTip(1500, "频率已更新", string.Format("已将心跳刷新间隔调整为 {0} 秒。", seconds), ToolTipIcon.Info);
+            notifyIcon.ShowBalloonTip(1500, I18n.T("BalloonIntervalUpdatedTitle"),
+                I18n.T("BalloonIntervalUpdatedContent", seconds), ToolTipIcon.Info);
         }
 
         private void UpdateIntervalMenuChecks()
@@ -360,12 +566,9 @@ namespace HDDKeepAlive
         {
             TimeSpan runningTime = DateTime.Now - startTime;
             List<string> active = GetActiveDrives();
-            string msg = string.Format(
-                "运行时间: {0} 小时 {1} 分钟\n累计保护心跳: {2} 次\n当前受保护分区: {3}\n刷新频率: 每 {4} 秒一次\n\n提示: 程序正在静默维持外接硬盘转速，防止马达停转。",
-                (int)runningTime.TotalHours, runningTime.Minutes, heartbeatCount,
-                active.Count > 0 ? string.Join(", ", active.ToArray()) : "无",
-                intervalSeconds);
-            MessageBox.Show(msg, "运行统计 - 外接硬盘防休眠助手", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            string drives = active.Count > 0 ? string.Join(", ", active.ToArray()) : I18n.T("None");
+            string msg = I18n.T("StatsContent", (int)runningTime.TotalHours, runningTime.Minutes, heartbeatCount, drives, intervalSeconds);
+            MessageBox.Show(msg, I18n.T("StatsTitle"), MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
 
         private bool IsAutoStartEnabled()
@@ -396,20 +599,22 @@ namespace HDDKeepAlive
                         {
                             key.DeleteValue(AppName, false);
                             autoStartMenuItem.Checked = false;
-                            notifyIcon.ShowBalloonTip(2000, "自启动设置", "已关闭开机自启。", ToolTipIcon.Info);
+                            notifyIcon.ShowBalloonTip(2000, I18n.T("BalloonAutoStartTitle"),
+                                I18n.T("BalloonAutoStartDisabled"), ToolTipIcon.Info);
                         }
                         else
                         {
                             key.SetValue(AppName, "\"" + Application.ExecutablePath + "\"");
                             autoStartMenuItem.Checked = true;
-                            notifyIcon.ShowBalloonTip(2000, "自启动设置", "已开启开机自动静默启动！", ToolTipIcon.Info);
+                            notifyIcon.ShowBalloonTip(2000, I18n.T("BalloonAutoStartTitle"),
+                                I18n.T("BalloonAutoStartEnabled"), ToolTipIcon.Info);
                         }
                     }
                 }
             }
             catch (Exception ex)
             {
-                MessageBox.Show("设置自启动失败: " + ex.Message, "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show(I18n.T("AutoStartError") + ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
@@ -428,6 +633,16 @@ namespace HDDKeepAlive
                             if (val == 30 || val == 60 || val == 120 || val == 180)
                             {
                                 intervalSeconds = val;
+                            }
+                        }
+
+                        object langVal = key.GetValue("Language");
+                        if (langVal != null)
+                        {
+                            string l = langVal.ToString().ToLowerInvariant();
+                            if (l == "zh" || l == "en")
+                            {
+                                I18n.CurrentLanguage = l;
                             }
                         }
 
@@ -455,6 +670,7 @@ namespace HDDKeepAlive
                     if (key != null)
                     {
                         key.SetValue("IntervalSeconds", intervalSeconds, RegistryValueKind.DWord);
+                        key.SetValue("Language", I18n.CurrentLanguage, RegistryValueKind.String);
                         List<string> disabledList = new List<string>(userDisabledDrives);
                         key.SetValue("DisabledDrives", string.Join(",", disabledList.ToArray()), RegistryValueKind.String);
                     }
@@ -653,7 +869,7 @@ namespace HDDKeepAlive
                                     item.FileSystem = drive.DriveFormat;
                                     item.TotalFreeSpaceBytes = drive.AvailableFreeSpace;
                                     item.TotalSizeBytes = drive.TotalSize;
-                                    item.DiskModel = "USB 存储设备";
+                                    item.DiskModel = I18n.T("UsbDeviceDefault");
                                     item.IsEnabled = true;
 
                                     addedLetters.Add(driveLetter);
@@ -714,7 +930,7 @@ namespace HDDKeepAlive
                                                         item.FileSystem = d.DriveFormat;
                                                         item.TotalFreeSpaceBytes = d.AvailableFreeSpace;
                                                         item.TotalSizeBytes = d.TotalSize;
-                                                        item.DiskModel = "USB 存储设备";
+                                                        item.DiskModel = I18n.T("UsbDeviceDefault");
                                                         item.IsEnabled = true;
 
                                                         addedLetters.Add(fullLetter);

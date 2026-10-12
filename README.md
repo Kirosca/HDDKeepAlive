@@ -1,53 +1,61 @@
-# HDDKeepAlive (外接硬盘防休眠助手)
+# HDDKeepAlive
 
-轻量级 Windows 外接机械硬盘防休眠实用工具。常驻系统托盘，纯原生零依赖单文件运行，自动检测并保持外接机械硬盘盘片马达平稳转动，彻底消除二次访问时的卡顿与等待唤醒延迟。
+**English** | [简体中文](README_zh.md)
 
----
+A lightweight, silent Windows system tray utility designed to prevent external mechanical hard drives (HDDs) from automatically spinning down or entering sleep mode.
 
-## 痛点与背景
-
-1. **频繁休眠与启动延迟**：外接 3.5 寸 / 2.5 寸机械硬盘（移动硬盘盒、硬盘底座、多盘位 DAS 柜）在闲置数分钟后，硬盘固件或 Windows APM（高级电源管理）会自动停转磁头与马达进入休眠。当再次打开文件夹或读取数据时，系统需等待 3~8 秒马达重新起旋加速，造成明显的资源管理器未响应与卡顿。
-2. **反复启停损耗硬件寿命**：机械硬盘最易损耗的时刻即为马达起旋与磁头打在起飞区（Load/Unload）的瞬间。频繁的启停会急剧消耗磁头加载循环计数（Load/Unload Cycle Count），影响盘体寿命。
-3. **传统方案缺陷**：
-   - 依赖复杂的 Python / Node.js 脚本或体积庞大的 Electron 包装程序；
-   - 需硬编码固定盘符，换电脑或插拔盘符变动后立即失效；
-   - 误对内部高速固态硬盘（NVMe SSD）频繁写入，造成不必要的颗粒写入损耗。
+Zero external dependencies, single-file native executable (~28 KB), adaptive USB storage auto-discovery, and real-time PnP hot-plug detection.
 
 ---
 
-## 核心特性
+## Background & Problem
 
-- **双引擎硬件总线自适应侦测**：
-  - 核心采用 Win32 内核 API `CreateFile` + `DeviceIoControl(IOCTL_STORAGE_QUERY_PROPERTY)`，直接读取设备存储总线属性（`BusType == 7 (USB)`）。
-  - 执行耗时 < 1ms，无需系统提权。
-  - 自动避开机内内置的 NVMe、SATA 固态硬盘，严格忽略操作系统分区（`C:\`）。
-- **Windows 硬件热插拔（PnP）动态监听**：
-  - 监听底层消息 `WM_DEVICECHANGE`（`0x0219`），在用户插拔硬盘时毫秒级自动增减受保护列表，全程无需重启程序。
-- **物理层微开销保活机制**：
-  - 每周期仅在磁盘根目录写入仅 19 字节的隐藏心跳时间戳（`.hdd_keepalive`），并调用系统 `Flush(true)` 穿透系统缓存，迫使磁头与马达维持旋转状态。
-  - 单日产生的数据写入量不足 50 KB，对机械硬盘寿命无任何负担。
-- **轻量原生托盘管理**：
-  - 任务栏托盘常驻，支持动态查看各外接盘符、卷标及剩余容量。
-  - 支持对各分区进行独立勾选/排除控制，支持一键在文件资源管理器中打开目标盘。
-  - 支持调节心跳刷新周期（30s / 60s / 120s / 180s），配置自动持久化至用户注册表。
-- **纯原生零依赖单文件**：
-  - 仅包含单一源码文件 `Program.cs`，使用 Windows 系统自带的 .NET 4.x 编译器编译生成，生成体积仅 14 KB，支持任意 Windows 7 / 8 / 10 / 11 机器双击即用。
+1. **Spin-down Latency**: External 3.5" and 2.5" mechanical hard drives (enclosures, docking stations, multi-bay DAS storage) frequently spin down their spindle motors after a few minutes of inactivity due to aggressive disk firmware or Windows APM (Advanced Power Management) policies. When accessing files again, users experience a 3-8 second freeze while the drive spins back up.
+2. **Drive Wear & Tear**: Mechanical drives experience the highest physical wear during spindle spin-up and head park/unpark transitions (Load/Unload cycles). Excessive cycling degrades drive longevity.
+3. **Shortcomings of Existing Solutions**:
+   - Heavy runtimes (Python, Node.js, Electron wrappers).
+   - Hardcoded drive letters (`E:`, `F:`) that break when plugging drives into different ports or machines.
+   - Indiscriminate writes to internal NVMe/SATA SSDs, wasting flash write endurance.
 
 ---
 
-## 编译方法
+## Key Features
 
-### 方法 1：使用系统自带编译器直接编译（无需安装 Visual Studio）
+- **Bilingual Interface (English / 简体中文)**:
+  - Automatically selects system UI language (defaults to Chinese on Chinese locales, English elsewhere).
+  - One-click live language toggle directly from the system tray menu without restarting.
+- **Dual-Engine Adaptive Bus Detection (Zero Hardcoding)**:
+  - Uses Win32 kernel API `CreateFile` + `DeviceIoControl(IOCTL_STORAGE_QUERY_PROPERTY)` to verify `BusType == 7 (USB)`.
+  - Sub-millisecond execution time, requiring zero administrator elevation.
+  - Automatically skips internal NVMe (BusType=17) and SATA (BusType=11) solid-state drives, as well as the system partition (`C:\`).
+  - Fallback Storage WMI provider (`MSFT_Disk`) for non-standard environments.
+- **Real-Time PnP Hot-Plug Listening**:
+  - Intercepts Windows broadcast messages `WM_DEVICECHANGE` (`0x0219`), dynamically refreshing target drives within 1.5 seconds upon insertion or removal.
+- **Minimal Physical Keep-Alive Footprint**:
+  - Writes a tiny 19-byte timestamp to a hidden file (`.hdd_keepalive`) in the drive root and invokes `Flush(true)` to pass through the OS file cache directly to disk hardware.
+  - Generates less than 50 KB of disk writes per day, causing zero wear.
+- **Native Tray Management & Persistence**:
+  - Resides quietly in the system notification area.
+  - Displays partition volumes and available capacity (e.g. `[E:] Backup (128.8 GB / 1200.0 GB)`).
+  - Allows toggling keep-alive for individual drives and opening drive root in Explorer.
+  - Configurable heartbeat intervals (30s, 60s recommended, 120s, 180s), saved automatically to `HKCU\Software\HDDKeepAlive`.
+- **Pure Native Single-File Executable**:
+  - Clean C# codebase in a single file (`Program.cs`), compiled for .NET 4.0-4.8 (pre-installed on Windows 7, 8, 10, 11).
+  - No installer, no background console window, ~28 KB portable binary.
 
-在源码目录下，直接双击运行 `build.bat`，或在命令行执行：
+---
+
+## Building from Source
+
+### Method 1: Using Built-in Windows C# Compiler (No Visual Studio Required)
+
+Double-click `build.bat` or run:
 
 ```cmd
 %windir%\Microsoft.NET\Framework64\v4.0.30319\csc.exe /target:winexe /optimize+ /r:System.Drawing.dll,System.Windows.Forms.dll,System.Management.dll /out:HDDKeepAlive.exe Program.cs
 ```
 
-### 方法 2：使用 MSBuild 或 Visual Studio
-
-直接使用 Visual Studio 打开项目或在命令行执行：
+### Method 2: Using MSBuild or Visual Studio
 
 ```cmd
 msbuild HDDKeepAlive.csproj /p:Configuration=Release
@@ -55,19 +63,21 @@ msbuild HDDKeepAlive.csproj /p:Configuration=Release
 
 ---
 
-## 使用指南
+## Getting Started
 
-1. 双击运行 `HDDKeepAlive.exe`，程序将在右下角任务栏系统托盘显示硬盘图标。
-2. 插入 USB 移动硬盘后，托盘会自动弹出通知气泡，提示已识别保护该设备。
-3. 右键点击托盘图标：
-   - **外接磁盘管理**：查看当前连接的所有 USB 分区，点击可切换是否保护该分区。
-   - **立即执行心跳保活**：立即向所有受保护设备刷新一次缓存。
-   - **心跳频率设置**：可在 30 秒、60 秒（推荐）、120 秒、180 秒之间切换。
-   - **开机自动启动**：开启或关闭开机自启。
-   - **运行统计**：查看当前运行时间与累计保护心跳次数。
+1. Download `HDDKeepAlive.exe` from the [Releases page](https://github.com/Kirosca/HDDKeepAlive/releases).
+2. Double-click to launch; an HDD icon will appear in the system tray.
+3. Plug in any external hard drive; a balloon notification will confirm it is protected.
+4. Right-click the tray icon to:
+   - View connected external drives and toggle protection per drive.
+   - Send an immediate keep-alive heartbeat.
+   - Adjust interval (30s, 60s, 120s, 180s).
+   - Switch language (**English** / **简体中文**).
+   - Toggle **Start with Windows**.
+   - View running statistics and uptime.
 
 ---
 
-## 许可证
+## License
 
-本项目基于 [MIT 许可证](LICENSE) 开源。
+This project is licensed under the [MIT License](LICENSE).
