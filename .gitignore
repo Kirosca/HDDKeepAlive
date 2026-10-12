@@ -1,0 +1,12 @@
+# Visual Studio / MSBuild
+.vs/
+bin/
+obj/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# Executables (compiled locally)
+# HDDKeepAlive.exe is excluded from tracking by default; download from Releases or build locally
+HDDKeepAlive.exe
