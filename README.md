@@ -1,7 +1,7 @@
 # 💽 HDDKeepAlive
 
 <p align="center">
-  <img src="assets/icons/dual_badge_1.jpg" width="160" alt="HDDKeepAlive Logo" />
+  <img src="assets/icons/tray_minimal.jpg" width="160" alt="HDDKeepAlive Logo" />
 </p>
 
 **🌐 English** | [🇨🇳 简体中文](README_zh.md)

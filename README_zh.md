@@ -1,7 +1,7 @@
 # 💽 HDDKeepAlive (外接机械硬盘防休眠助手)
 
 <p align="center">
-  <img src="assets/icons/dual_badge_1.jpg" width="160" alt="HDDKeepAlive Logo" />
+  <img src="assets/icons/tray_minimal.jpg" width="160" alt="HDDKeepAlive 标徽" />
 </p>
 
 [🌐 English](README.md) | **🇨🇳 简体中文**
