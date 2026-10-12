@@ -18,7 +18,7 @@ public class IcoMaker
         string outputPath = args[1];
         string trayPath = args.Length >= 3 ? args[2] : null;
 
-        int[] sizes = new int[] { 256, 128, 64, 48, 32, 16 };
+        int[] sizes = new int[] { 48, 32, 16 };
 
         using (Bitmap mainBmp = new Bitmap(inputPath))
         using (Bitmap trayBmp = !string.IsNullOrEmpty(trayPath) && File.Exists(trayPath) ? new Bitmap(trayPath) : null)
